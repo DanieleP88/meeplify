@@ -1,54 +1,129 @@
 # Meeplify
 
-Web app for personal and collaborative checklists with admin panel.
+Collaborative checklist application with Google OAuth authentication and Notion-style design.
 
-## Setup
+## Features
 
-1. Clone the repo.
-2. Copy .env.example to .env and fill in values: DB creds, Google OAuth, SMTP.
-3. Set up MySQL DB with schema from DATA_MODEL (manual creation).
-4. Point web server to project root, with PHP 8.x.
-5. For admin access, set a user role to 'admin' in DB.
+- **Google OAuth Login** - Secure authentication with Google accounts  
+- **Real-time Collaboration** - Multiple users can work on the same checklist
+- **Notion-style Interface** - Clean, minimal design inspired by Notion
+- **Tag System** - Organize items with colors and emojis
+- **Progress Tracking** - Visual progress indicators for each checklist
+- **Mobile Responsive** - Works perfectly on all devices
 
-## .env Variables
+## Tech Stack
 
-- DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS
-- GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_REDIRECT_URI
-- SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM_EMAIL
+- **Backend**: PHP 8+ with RESTful API architecture
+- **Database**: MySQL/MariaDB with optimized schema
+- **Frontend**: Vanilla JavaScript SPA with CSS Grid/Flexbox
+- **Authentication**: Google OAuth 2.0
+- **Design**: Custom CSS inspired by Notion's design system
 
-## Routes
+## Quick Setup
 
-### Auth
-- POST /api/auth/google/exchange - Exchange code for token
-- GET /api/auth/me - User info
-- POST /api/auth/logout - Logout
+### 1. Database Setup
+Import the database schema:
+```bash
+mysql -u your_user -p your_database < database_schema.sql
+```
+
+### 2. Google OAuth Configuration ⚙️
+**REQUIRED for login functionality:**
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select existing
+3. Enable Google+ API
+4. Create OAuth 2.0 credentials (Web application)
+5. Add authorized redirect URI: `https://yourdomain.com/api/google/callback`
+6. Copy Client ID and Client Secret
+
+### 3. Environment Configuration
+Edit `.env` file with your credentials:
+```env
+# Database Configuration
+DB_HOST=localhost
+DB_NAME=your_database
+DB_USER=your_username  
+DB_PASS=your_password
+
+# Google OAuth Configuration (REQUIRED)
+GOOGLE_CLIENT_ID=your_google_client_id_here
+GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+GOOGLE_REDIRECT_URI=https://yourdomain.com/api/google/callback
+```
+
+### 4. Web Server Setup
+Point your web server document root to the project folder. The `.htaccess` file handles URL rewriting automatically.
+
+## API Endpoints
+
+### Authentication
+- `GET /api/auth/google` - Get Google OAuth URL
+- `GET /api/auth/me` - Check authentication status
+- `POST /api/auth/logout` - Logout user
 
 ### Checklists
-- GET /api/checklists - List
-- POST /api/checklists - Create
-- GET /api/checklists/{id} - Detail
-- PATCH /api/checklists/{id} - Update
-- DELETE /api/checklists/{id} - Soft delete
-- POST /api/checklists/{id}/duplicate - Duplicate
-- PATCH /api/checklists/{id}/share-view - Share
-- GET /api/share/{token} - Public view
-- GET /api/checklists/{id}/export - Export JSON
-- POST /api/checklists/{id}/import?mode=merge|replace - Import JSON
+- `GET /api/checklists` - List user checklists
+- `POST /api/checklists` - Create new checklist
+- `GET /api/checklists/{id}` - Get checklist details
+- `PUT /api/checklists/{id}` - Update checklist
+- `DELETE /api/checklists/{id}` - Delete checklist (soft delete)
 
-(Full list in API_SPEC)
+### Sections & Items
+- `POST /api/sections` - Create section
+- `POST /api/items` - Create item
+- `PUT /api/items/{id}` - Update item (including completion status)
 
-## cURL Examples
+## Troubleshooting
 
-Login exchange:
-```bash
-curl -X POST http://localhost/api/auth/google/exchange -d 'code=GOOGLE_CODE'
+### ❌ "Google OAuth non configurato" Error
+**Cause**: Missing or incorrect Google OAuth credentials in `.env`
+
+**Solution**:
+1. Verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` are set in `.env`
+2. Check redirect URI matches exactly: `https://yourdomain.com/api/google/callback`
+3. Ensure `.env` file is readable by web server
+4. Visit `/debug_oauth.php` for detailed configuration check
+
+### ❌ Database Connection Errors
+**Cause**: Incorrect database configuration
+
+**Solution**:
+1. Verify database credentials in `.env`
+2. Ensure database exists and schema is imported
+3. Check `DATABASE_REFERENCE.md` for correct table structure
+
+### ❌ 404 Errors on API Calls
+**Cause**: URL rewriting not working
+
+**Solution**:
+1. Ensure `.htaccess` file exists and is readable
+2. Verify Apache `mod_rewrite` is enabled
+3. Check web server configuration allows `.htaccess` overrides
+
+## File Structure
+
+```
+webapp/
+├── app/                    # Backend PHP code
+│   ├── api/               # API endpoints and handlers  
+│   ├── lib/               # Configuration and utilities
+│   └── views/             # HTML templates
+├── assets/                # Frontend assets
+│   ├── css/               # Stylesheets
+│   └── js/                # JavaScript application
+├── .env                   # Environment configuration
+├── .htaccess             # URL rewriting rules
+├── database_schema.sql   # Database structure
+├── DATABASE_REFERENCE.md # Database documentation
+└── index.php            # Application entry point
 ```
 
-Create checklist:
-```bash
-curl -X POST http://localhost/api/checklists -H 'Content-Type: application/json' -d '{"title":"New List"}'
-```
+## Development
 
-## Testing
+For database structure details, see `DATABASE_REFERENCE.md`.
+For complete installation guide, see `INSTALLATION.md`.
 
-Run smoke tests: php tests/smoke.php
+## License
+
+MIT License - see LICENSE file for details.

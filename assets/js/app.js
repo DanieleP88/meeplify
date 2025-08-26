@@ -374,12 +374,14 @@ class MeeplifyApp {
             console.error('❌ Login error:', error);
             
             let errorMessage = 'Errore durante il login. ';
-            if (error.message.includes('500')) {
-                errorMessage += 'Controlla la configurazione del server. Visita /test_auth.php per diagnosticare il problema.';
+            if (error.message.includes('500') || error.message.includes('400')) {
+                errorMessage = '⚙️ Google OAuth non configurato. Contatta l\'amministratore per completare la configurazione.';
             } else if (error.message.includes('configuration')) {
-                errorMessage += 'Configura Google OAuth nel file .env';
+                errorMessage = '⚙️ Google OAuth non configurato. Contatta l\'amministratore.';
+            } else if (error.message.includes('not configured')) {
+                errorMessage = '⚙️ Google OAuth non configurato. Contatta l\'amministratore.';
             } else {
-                errorMessage += 'Riprova.';
+                errorMessage += 'Riprova tra qualche minuto.';
             }
             
             this.showToast(errorMessage, 'error');
@@ -497,12 +499,12 @@ class MeeplifyApp {
                 console.error('❌ Login error:', error);
                 
                 let errorMessage = 'Errore durante il login. ';
-                if (error.message.includes('500')) {
-                    errorMessage += 'Controlla la configurazione del server.';
-                } else if (error.message.includes('configuration')) {
-                    errorMessage += 'Configura Google OAuth nel file .env';
+                if (error.message.includes('500') || error.message.includes('400')) {
+                    errorMessage = '⚙️ Google OAuth non configurato. Contatta l\'amministratore per completare la configurazione.';
+                } else if (error.message.includes('configuration') || error.message.includes('not configured')) {
+                    errorMessage = '⚙️ Google OAuth non configurato. Contatta l\'amministratore.';
                 } else {
-                    errorMessage += 'Riprova.';
+                    errorMessage += 'Riprova tra qualche minuto.';
                 }
                 
                 this.showMessage(messageEl, errorMessage, 'error');

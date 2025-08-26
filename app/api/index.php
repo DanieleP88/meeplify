@@ -180,7 +180,11 @@ try {
             // Check if Google OAuth is configured
             if (empty(GOOGLE_CLIENT_ID) || empty(GOOGLE_CLIENT_SECRET)) {
                 error_log("OAuth configuration failed - CLIENT_ID empty: " . (empty(GOOGLE_CLIENT_ID) ? 'YES' : 'NO') . ", CLIENT_SECRET empty: " . (empty(GOOGLE_CLIENT_SECRET) ? 'YES' : 'NO'));
-                sendJson(false, null, ['Google OAuth not configured. Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file'], 500);
+                sendJson(false, null, [
+                    'Google OAuth not configured', 
+                    'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file',
+                    'Visit: https://console.cloud.google.com/apis/credentials'
+                ], 400); // Change from 500 to 400 (Bad Request) as it's a configuration issue
                 exit;
             }
             
