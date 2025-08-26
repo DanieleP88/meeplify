@@ -76,11 +76,11 @@ class ChecklistHandler {
             SELECT c.id, c.title, c.description, c.created_at, c.updated_at,
                    COUNT(DISTINCT s.id) as section_count,
                    COUNT(DISTINCT i.id) as item_count,
-                   COUNT(DISTINCT CASE WHEN i.is_done = 1 THEN i.id END) as completed_count
+                   COUNT(DISTINCT CASE WHEN i.completed = 1 THEN i.id END) as completed_count
             FROM checklists c
             LEFT JOIN sections s ON c.id = s.checklist_id
             LEFT JOIN items i ON c.id = i.checklist_id
-            WHERE c.owner_user_id = ? AND c.deleted_at IS NULL $searchCondition
+            WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
             GROUP BY c.id
             ORDER BY c.updated_at DESC
             LIMIT $limit OFFSET $offset
@@ -100,7 +100,7 @@ class ChecklistHandler {
         $countStmt = $pdo->prepare("
             SELECT COUNT(*) 
             FROM checklists c 
-            WHERE c.owner_user_id = ? AND c.deleted_at IS NULL $searchCondition
+            WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
         ");
         $countStmt->execute($params);
         $total = $countStmt->fetchColumn();
