@@ -172,19 +172,13 @@ try {
     // Handle API endpoints
     if ($resource === 'auth') {
         if ($action === 'google' && $method === 'GET') {
-            // Debug: Log configuration values
-            error_log("GOOGLE_CLIENT_ID: " . (defined('GOOGLE_CLIENT_ID') ? GOOGLE_CLIENT_ID : 'NOT DEFINED'));
-            error_log("GOOGLE_CLIENT_SECRET: " . (defined('GOOGLE_CLIENT_SECRET') ? (empty(GOOGLE_CLIENT_SECRET) ? 'EMPTY' : 'SET') : 'NOT DEFINED'));
-            error_log("GOOGLE_REDIRECT_URI: " . (defined('GOOGLE_REDIRECT_URI') ? GOOGLE_REDIRECT_URI : 'NOT DEFINED'));
-            
             // Check if Google OAuth is configured
             if (empty(GOOGLE_CLIENT_ID) || empty(GOOGLE_CLIENT_SECRET)) {
-                error_log("OAuth configuration failed - CLIENT_ID empty: " . (empty(GOOGLE_CLIENT_ID) ? 'YES' : 'NO') . ", CLIENT_SECRET empty: " . (empty(GOOGLE_CLIENT_SECRET) ? 'YES' : 'NO'));
                 sendJson(false, null, [
                     'Google OAuth not configured', 
                     'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file',
                     'Visit: https://console.cloud.google.com/apis/credentials'
-                ], 400); // Change from 500 to 400 (Bad Request) as it's a configuration issue
+                ], 400);
                 exit;
             }
             
