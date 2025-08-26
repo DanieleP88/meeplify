@@ -1,0 +1,21 @@
+# Configurazione per OVH PHP 8.2
+RewriteEngine On
+
+# Google OAuth callback routing
+RewriteRule ^auth/google/callback$ app/api/index.php?callback=google [QSA,L]
+
+# API routing
+RewriteRule ^api/(.*)$ app/api/index.php [QSA,L]
+
+# Sicurezza
+<FilesMatch "(\.env|composer\.(json|lock)|package\.json|\.git)">
+  Require all denied
+</FilesMatch>
+
+# Headers sicurezza
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set X-XSS-Protection "1; mode=block"
+</IfModule>

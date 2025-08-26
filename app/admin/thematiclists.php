@@ -1,0 +1,1 @@
+&lt;?php\n \$content = '\n&lt;h1&gt;Thematic Lists Management&lt;/h1&gt;\n&lt;!-- HTML+JS for CRUD templates and tags using fetch to /api/templates and /api/tags --&gt;\n';\nrequire_once __DIR__ . '/../views/admin_shell.php';\n?&gt;
