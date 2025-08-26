@@ -58,7 +58,9 @@ function getRealIpAddress() {
 function sendJson($success, $data = null, $errors = [], $status = 200) {
     http_response_code($status);
     if (!$success && $status >= 400) {
-        logMessage('ERROR', json_encode($errors));
+        // Temporarily disable file logging to prevent 500 errors due to permissions
+        // logMessage('ERROR', json_encode($errors));
+        error_log('API Error: ' . json_encode($errors));
     }
     
     // Security headers
@@ -361,10 +363,10 @@ function initializeSecurity() {
     // Check for maintenance mode
     checkMaintenanceMode();
     
-    // Validate user agent for API endpoints
-    if (strpos($_SERVER['REQUEST_URI'], '/api/') === 0) {
-        validateUserAgent();
-    }
+    // Temporarily disable user agent validation to prevent OAuth issues
+    // if (strpos($_SERVER['REQUEST_URI'], '/api/') === 0) {
+    //     validateUserAgent();
+    // }
     
     // Clean up old session data
     cleanupSessions();
