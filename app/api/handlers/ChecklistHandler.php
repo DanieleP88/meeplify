@@ -56,12 +56,13 @@ class ChecklistHandler {
     }
 
     private static function getChecklists($user_id) {
-        $page = max(1, intval($_GET['page'] ?? 1));
-        $search = sanitizeString($_GET['search'] ?? '', 100);
-        $limit = 20;
-        $offset = ($page - 1) * $limit;
+        try {
+            $page = max(1, intval($_GET['page'] ?? 1));
+            $search = sanitizeString($_GET['search'] ?? '', 100);
+            $limit = 20;
+            $offset = ($page - 1) * $limit;
 
-        $pdo = DB::getPDO();
+            $pdo = DB::getPDO();
         
         $searchCondition = '';
         $params = [$user_id];
@@ -105,15 +106,21 @@ class ChecklistHandler {
         $countStmt->execute($params);
         $total = $countStmt->fetchColumn();
 
-        sendJson(true, [
-            'checklists' => $checklists,
-            'pagination' => [
-                'page' => $page,
-                'limit' => $limit,
-                'total' => (int)$total,
-                'pages' => ceil($total / $limit)
-            ]
-        ]);
+            sendJson(true, [
+                'checklists' => $checklists,
+                'pagination' => [
+                    'page' => $page,
+                    'limit' => $limit,
+                    'total' => (int)$total,
+                    'pages' => ceil($total / $limit)
+                ]
+            ]);
+        } catch (Exception $e) {
+            error_log("ChecklistHandler::getChecklists error: " . $e->getMessage());
+            error_log("User ID: $user_id");
+            error_log("Stack trace: " . $e->getTraceAsString());
+            sendJson(false, null, ['Database error: ' . $e->getMessage()], 500);
+        }
     }
 
     private static function createChecklist($user_id) {

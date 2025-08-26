@@ -250,6 +250,10 @@ try {
     
 } catch (Exception $e) {
     error_log('API Error: ' . $e->getMessage());
-    sendJson(false, null, ['Internal server error'], 500);
+    error_log('API Error Stack: ' . $e->getTraceAsString());
+    error_log('Request URI: ' . ($_SERVER['REQUEST_URI'] ?? 'unknown'));
+    error_log('Request Method: ' . ($_SERVER['REQUEST_METHOD'] ?? 'unknown'));
+    error_log('Session Data: ' . json_encode($_SESSION ?? []));
+    sendJson(false, null, ['Internal server error: ' . $e->getMessage()], 500);
 }
 ?>
