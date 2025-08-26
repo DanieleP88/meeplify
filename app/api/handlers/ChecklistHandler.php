@@ -124,14 +124,15 @@ class ChecklistHandler {
     }
 
     private static function createChecklist($user_id) {
-        $input = getInput();
-        
-        $title = sanitizeString($input['title'] ?? '', 255);
-        $description = sanitizeString($input['description'] ?? '', 1000);
+        try {
+            $input = getInput();
+            
+            $title = sanitizeString($input['title'] ?? '', 255);
+            $description = sanitizeString($input['description'] ?? '', 1000);
 
-        if (empty($title)) {
-            sendJson(false, null, ['Title is required'], 400);
-        }
+            if (empty($title)) {
+                sendJson(false, null, ['Title is required'], 400);
+            }
 
         // Check limits
         $pdo = DB::getPDO();
@@ -166,8 +167,13 @@ class ChecklistHandler {
 
         } catch (PDOException $e) {
             $pdo->rollback();
-            logMessage('ERROR', "Failed to create checklist: " . $e->getMessage());
-            sendJson(false, null, ['Failed to create checklist'], 500);
+            error_log("ChecklistHandler::createChecklist PDO error: " . $e->getMessage());
+            error_log("User ID: $user_id, Title: $title");
+            sendJson(false, null, ['Failed to create checklist: ' . $e->getMessage()], 500);
+        } catch (Exception $e) {
+            error_log("ChecklistHandler::createChecklist general error: " . $e->getMessage());
+            error_log("User ID: $user_id, Title: $title");
+            sendJson(false, null, ['Error creating checklist: ' . $e->getMessage()], 500);
         }
     }
 
