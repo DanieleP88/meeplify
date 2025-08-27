@@ -38,14 +38,26 @@ function loadEnv($filePath) {
 
 loadEnv(__DIR__ . '/../../.env');
 
-// Google OAuth2 Configuration
-define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '');
-define('GOOGLE_CLIENT_SECRET', $_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
-define('GOOGLE_REDIRECT_URI', $_ENV['GOOGLE_REDIRECT_URI'] ?? '');
+// Google OAuth2 Configuration (with conditional define to avoid redefinition errors)
+if (!defined('GOOGLE_CLIENT_ID')) {
+    define('GOOGLE_CLIENT_ID', $_ENV['GOOGLE_CLIENT_ID'] ?? '');
+}
+if (!defined('GOOGLE_CLIENT_SECRET')) {
+    define('GOOGLE_CLIENT_SECRET', $_ENV['GOOGLE_CLIENT_SECRET'] ?? '');
+}
+if (!defined('GOOGLE_REDIRECT_URI')) {
+    define('GOOGLE_REDIRECT_URI', $_ENV['GOOGLE_REDIRECT_URI'] ?? '');
+}
 
-// Database Configuration
-define('DB_DSN', 'mysql:host=' . ($_ENV['DB_HOST'] ?? 'localhost') . ';port=' . ($_ENV['DB_PORT'] ?? '3306') . ';dbname=' . ($_ENV['DB_NAME'] ?? 'meeplify') . ';charset=utf8mb4');
-define('DB_USER', $_ENV['DB_USER'] ?? 'root');
-define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+// Database Configuration (with conditional define)
+if (!defined('DB_DSN')) {
+    define('DB_DSN', 'mysql:host=' . ($_ENV['DB_HOST'] ?? 'localhost') . ';port=' . ($_ENV['DB_PORT'] ?? '3306') . ';dbname=' . ($_ENV['DB_NAME'] ?? 'meeplify') . ';charset=utf8mb4');
+}
+if (!defined('DB_USER')) {
+    define('DB_USER', $_ENV['DB_USER'] ?? 'root');
+}
+if (!defined('DB_PASS')) {
+    define('DB_PASS', $_ENV['DB_PASS'] ?? '');
+}
 
 ?>

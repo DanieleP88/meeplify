@@ -87,11 +87,26 @@ echo "GOOGLE_CLIENT_SECRET in \$_ENV: " . (isset($_ENV['GOOGLE_CLIENT_SECRET']) 
 echo "GOOGLE_REDIRECT_URI in \$_ENV: " . (isset($_ENV['GOOGLE_REDIRECT_URI']) ? $_ENV['GOOGLE_REDIRECT_URI'] : "NOT SET") . "\n";
 
 echo "\n4. Testing after Config.php loading:\n";
-require_once __DIR__ . '/app/lib/Config.php';
+try {
+    require_once __DIR__ . '/app/lib/Config.php';
+    echo "✅ Config.php loaded successfully\n";
+} catch (Exception $e) {
+    echo "❌ Config.php loading failed: " . $e->getMessage() . "\n";
+} catch (Error $e) {
+    echo "❌ Config.php fatal error: " . $e->getMessage() . "\n";
+}
 
 echo "GOOGLE_CLIENT_ID constant: " . (defined('GOOGLE_CLIENT_ID') ? (GOOGLE_CLIENT_ID ? "SET (len: " . strlen(GOOGLE_CLIENT_ID) . ")" : "EMPTY") : "NOT DEFINED") . "\n";
 echo "GOOGLE_CLIENT_SECRET constant: " . (defined('GOOGLE_CLIENT_SECRET') ? (GOOGLE_CLIENT_SECRET ? "SET" : "EMPTY") : "NOT DEFINED") . "\n";
 echo "GOOGLE_REDIRECT_URI constant: " . (defined('GOOGLE_REDIRECT_URI') ? GOOGLE_REDIRECT_URI : "NOT DEFINED") . "\n";
+
+// Additional test: simulate what the OAuth endpoint does
+echo "\n5. Testing OAuth endpoint logic simulation:\n";
+if (empty(GOOGLE_CLIENT_ID) || empty(GOOGLE_CLIENT_SECRET)) {
+    echo "❌ OAuth would fail - CLIENT_ID empty: " . (empty(GOOGLE_CLIENT_ID) ? 'YES' : 'NO') . ", CLIENT_SECRET empty: " . (empty(GOOGLE_CLIENT_SECRET) ? 'YES' : 'NO') . "\n";
+} else {
+    echo "✅ OAuth would succeed - both CLIENT_ID and CLIENT_SECRET are set\n";
+}
 
 echo "\n=== END DEBUG ===\n";
 ?>
