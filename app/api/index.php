@@ -172,12 +172,21 @@ try {
     // Handle API endpoints
     if ($resource === 'auth') {
         if ($action === 'google' && $method === 'GET') {
+            // Temporary debug: Log the actual values we're checking
+            error_log("DEBUG OAuth - GOOGLE_CLIENT_ID defined: " . (defined('GOOGLE_CLIENT_ID') ? 'YES' : 'NO'));
+            error_log("DEBUG OAuth - GOOGLE_CLIENT_ID empty: " . (defined('GOOGLE_CLIENT_ID') && empty(GOOGLE_CLIENT_ID) ? 'YES' : 'NO'));
+            error_log("DEBUG OAuth - GOOGLE_CLIENT_SECRET defined: " . (defined('GOOGLE_CLIENT_SECRET') ? 'YES' : 'NO'));
+            error_log("DEBUG OAuth - GOOGLE_CLIENT_SECRET empty: " . (defined('GOOGLE_CLIENT_SECRET') && empty(GOOGLE_CLIENT_SECRET) ? 'YES' : 'NO'));
+            error_log("DEBUG OAuth - GOOGLE_REDIRECT_URI: " . (defined('GOOGLE_REDIRECT_URI') ? GOOGLE_REDIRECT_URI : 'NOT DEFINED'));
+            
             // Check if Google OAuth is configured
             if (empty(GOOGLE_CLIENT_ID) || empty(GOOGLE_CLIENT_SECRET)) {
                 sendJson(false, null, [
                     'Google OAuth not configured', 
                     'Please configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in .env file',
-                    'Visit: https://console.cloud.google.com/apis/credentials'
+                    'Visit: https://console.cloud.google.com/apis/credentials',
+                    'DEBUG: CLIENT_ID defined=' . (defined('GOOGLE_CLIENT_ID') ? 'yes' : 'no') . ', empty=' . (defined('GOOGLE_CLIENT_ID') && empty(GOOGLE_CLIENT_ID) ? 'yes' : 'no'),
+                    'DEBUG: CLIENT_SECRET defined=' . (defined('GOOGLE_CLIENT_SECRET') ? 'yes' : 'no') . ', empty=' . (defined('GOOGLE_CLIENT_SECRET') && empty(GOOGLE_CLIENT_SECRET) ? 'yes' : 'no')
                 ], 400);
                 exit;
             }
