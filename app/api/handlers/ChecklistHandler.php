@@ -63,48 +63,48 @@ class ChecklistHandler {
             $offset = ($page - 1) * $limit;
 
             $pdo = DB::getPDO();
-        
-        $searchCondition = '';
-        $params = [$user_id];
-        
-        if (!empty($search)) {
-            $searchCondition = ' AND (c.title LIKE ? OR c.description LIKE ?)';
-            $params[] = "%$search%";
-            $params[] = "%$search%";
-        }
+            
+            $searchCondition = '';
+            $params = [$user_id];
+            
+            if (!empty($search)) {
+                $searchCondition = ' AND (c.title LIKE ? OR c.description LIKE ?)';
+                $params[] = "%$search%";
+                $params[] = "%$search%";
+            }
 
-        $stmt = $pdo->prepare("
-            SELECT c.id, c.title, c.description, c.created_at, c.updated_at,
-                   COUNT(DISTINCT s.id) as section_count,
-                   COUNT(DISTINCT i.id) as item_count,
-                   COUNT(DISTINCT CASE WHEN i.completed = 1 THEN i.id END) as completed_count
-            FROM checklists c
-            LEFT JOIN sections s ON c.id = s.checklist_id
-            LEFT JOIN items i ON c.id = i.checklist_id
-            WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
-            GROUP BY c.id
-            ORDER BY c.updated_at DESC
-            LIMIT $limit OFFSET $offset
-        ");
-        
-        $stmt->execute($params);
-        $checklists = $stmt->fetchAll();
+            $stmt = $pdo->prepare("
+                SELECT c.id, c.title, c.description, c.created_at, c.updated_at,
+                       COUNT(DISTINCT s.id) as section_count,
+                       COUNT(DISTINCT i.id) as item_count,
+                       COUNT(DISTINCT CASE WHEN i.completed = 1 THEN i.id END) as completed_count
+                FROM checklists c
+                LEFT JOIN sections s ON c.id = s.checklist_id
+                LEFT JOIN items i ON c.id = i.checklist_id
+                WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
+                GROUP BY c.id
+                ORDER BY c.updated_at DESC
+                LIMIT $limit OFFSET $offset
+            ");
+            
+            $stmt->execute($params);
+            $checklists = $stmt->fetchAll();
 
-        // Calculate progress for each checklist
-        foreach ($checklists as &$checklist) {
-            $total_items = (int)$checklist['item_count'];
-            $completed_items = (int)$checklist['completed_count'];
-            $checklist['progress'] = $total_items > 0 ? round(($completed_items / $total_items) * 100) : 0;
-        }
+            // Calculate progress for each checklist
+            foreach ($checklists as &$checklist) {
+                $total_items = (int)$checklist['item_count'];
+                $completed_items = (int)$checklist['completed_count'];
+                $checklist['progress'] = $total_items > 0 ? round(($completed_items / $total_items) * 100) : 0;
+            }
 
-        // Get total count for pagination
-        $countStmt = $pdo->prepare("
-            SELECT COUNT(*) 
-            FROM checklists c 
-            WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
-        ");
-        $countStmt->execute($params);
-        $total = $countStmt->fetchColumn();
+            // Get total count for pagination
+            $countStmt = $pdo->prepare("
+                SELECT COUNT(*) 
+                FROM checklists c 
+                WHERE c.owner_id = ? AND c.deleted_at IS NULL $searchCondition
+            ");
+            $countStmt->execute($params);
+            $total = $countStmt->fetchColumn();
 
             sendJson(true, [
                 'checklists' => $checklists,
