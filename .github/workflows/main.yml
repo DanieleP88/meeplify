@@ -1,0 +1,54 @@
+name: Deploy Debug
+
+on:
+  workflow_dispatch: {}   # lo lanci a mano da Actions
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 1) Preflight: DNS/SSH reachability + whoami + path
+      - name: Preflight SSH checks
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          script: |
+            set -euxo pipefail
+            echo "== Hostname =="
+            hostname
+            echo "== Whoami =="
+            whoami
+            echo "== Home =="
+            pwd
+            echo "== Target path =="
+            echo "${{ secrets.SERVER_PATH }}"
+            [ -d "${{ secrets.SERVER_PATH }}" ] || (echo "Target non esiste, lo creo"; mkdir -p "${{ secrets.SERVER_PATH }}")
+            ls -lah "${{ secrets.SERVER_PATH }}"
+            echo "== rsync availability =="
+            command -v rsync || (echo "rsync NON presente sul server"; exit 127)
+
+      # 2) rsync DRY RUN (non copia nulla, mostra solo cosa farebbe)
+      - name: Rsync DRY-RUN
+        uses: easingthemes/ssh-deploy@main
+        with:
+          REMOTE_HOST: ${{ secrets.SERVER_HOST }}
+          REMOTE_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SOURCE: "./"
+          TARGET: ${{ secrets.SERVER_PATH }}
+          ARGS: >
+            -azn --delete -v
+            --exclude='.git*'
+            --exclude='.github*'
+            --exclude='node_modules/'
+            --exclude='vendor/'
+            --exclude='tests/'
+            --exclude='**/*.env'
+            --exclude='**/.env'
+            --exclude='.env'
+            --exclude='README.md'
